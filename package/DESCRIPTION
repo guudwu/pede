@@ -1,0 +1,9 @@
+Package: pede
+Type: Package
+Title: Parameter Estimation in Differential Equations
+Version: 0.1
+Date: 2013-12-12
+Author: GuuD WU
+Maintainer: guuuuud@gmail.com
+Description: To be added.
+License: GPLv2.
