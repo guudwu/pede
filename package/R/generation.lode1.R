@@ -2,6 +2,7 @@ generation.lode1 <- function (
   dimension
   , timepoint
   , orthogonal_transformation = list()
+  , row_column_permutation = TRUE
 )
 
 # INPUT:
@@ -21,6 +22,8 @@ generation.lode1 <- function (
 #   to Mth-Nth row of the coefficient matrix,
 #   and its transpose right multipled to Mth-Nth column of the
 #   coefficient matrix.
+# row_column_permutation: Make the sparsity structure less obvious
+#   by permuting rows and columns of the coefficient matrix.
 
 # OUTPUT:
 # time: Input argument "timepoint".
@@ -55,6 +58,8 @@ if ( length(timepoint)!=length(temp) || !all(timepoint==temp) )
   stop('Argument "timepoint" must be a vector ' ,
     'longer than 1 with strictly ascending elements.')
 }
+
+row_column_permutation <- as.logical(row_column_permutation)
 #}}}
 
 # Generate eigenvalues#{{{
@@ -188,6 +193,27 @@ for ( item in orthogonal_transformation )
     pracma::rortho ( item[2]-item[1]+1 )
   ret$curve <- ret$curve %*% t(temp)
   ret$parameter$linear <- temp %*% ret$parameter$linear %*% t(temp)
+}
+#}}}
+
+# Row-Column Permutation#{{{
+
+# Permute rows and columns
+# by left multiplying a permutation matrix
+# and right multiplying its transpose
+# to the coefficient matrix.
+# This will make the sparsity structure less obvious,
+# however it does not change the property,
+# which means the system is still unconnected,
+# if it is unconnected before this permutation.
+
+if ( row_column_permutation == TRUE )
+{
+  require('permute')
+  permute_index <- permute::shuffle ( dimension )
+  ret$parameter$linear <-
+    ret$parameter$linear [ permute_index , permute_index ]
+  ret$curve <- ret$curve [ , permute_index ]
 }
 #}}}
 
