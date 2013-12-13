@@ -8,6 +8,7 @@ summary.lode1 <- function
 (
   lode1
   , correlation = TRUE
+  , vif = TRUE
   , verbose = 1
 )
 
@@ -16,6 +17,7 @@ summary.lode1 <- function
 #   Return value of "generation.lode1" can be directly used.
 #   It should contain element "curve".
 # correlation: Whether to check pair-wise correlation.
+# vif: Whether to check VIF.
 # verbose: If positive, output the property results to STDOUT.
 
 {
@@ -40,6 +42,12 @@ correlation <- as.logical(correlation)
 if ( length(correlation)!=1 )
 {
   stop('Argument "correlation" should be a logical scalar.')
+}
+
+vif <- as.logical(vif)
+if ( length(vif)!=1 )
+{
+  stop('Argument "vif" should be a logical scalar.')
 }
 
 verbose <- as.integer(verbose)
@@ -73,6 +81,36 @@ if ( correlation )
     print(ret$property$correlation)
     cat('Maximal correlation: ')
     cat(ret$property$max_correlation)
+    cat('\n')
+  }
+}
+#}}}
+
+# VIF#{{{
+
+if ( vif )
+{
+  if ( !is.null(ret$property$vif) )
+  {
+    warning('VIF property exists.  Skip repeated computing.')
+  }
+  else
+  {
+    require('HH')
+    temp <- lapply ( 1 : nrow(lode1$curve) , function(index)
+    {
+      return ( lode1$curve[index,] )
+    } )
+    ret$property$vif <-
+      as.vector (
+        HH::vif ( data.frame(temp) )
+      )
+  }
+
+  if ( verbose >= 1 )
+  {
+    cat('Variance Inflation Factor: \n')
+    cat(ret$property$vif)
     cat('\n')
   }
 }

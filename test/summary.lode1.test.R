@@ -14,4 +14,5 @@ truth <-
     , list(0,1e-2)
   )
 
+truth <- summary.lode1(truth)
 summary.lode1(truth)
