@@ -73,6 +73,10 @@ if ( length(timepoint)!=length(temp) || !all(timepoint==temp) )
 }
 
 row_column_permutation <- as.logical(row_column_permutation)
+if ( length(row_column_permutation)!=1 )
+{
+  stop('Argument "row_column_permutation" must be a logical scalar.')
+}
 
 constant_exist <- !is.null(constant)
 if ( constant_exist )
