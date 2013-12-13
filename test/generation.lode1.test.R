@@ -10,6 +10,8 @@ truth <-
     dimension
     , time_point
     , list(c(2,3),c(4,5))
+    , TRUE
+    , list(0,1e-2)
   )
 
 # Check curve with internal "ode" function.
@@ -26,7 +28,7 @@ ode_res <- deSolve::ode (
   truth$parameter$initial
   , truth$time
   , linODE
-  , list ( truth$parameter$linear , NULL )
+  , list ( truth$parameter$linear , truth$parameter$constant )
 )
 
 rss <- norm ( t(ode_res[,-1]) - truth$curve , 'F' )

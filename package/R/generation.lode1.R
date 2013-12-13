@@ -1,8 +1,13 @@
+# Generate an order-1 linear ODE system
+#   x'(t) = A x(t) + b
+# and its curve.
+
 generation.lode1 <- function (
   dimension
   , timepoint
   , orthogonal_transformation = list()
   , row_column_permutation = TRUE
+  , constant = list(0,0)
 )
 
 # INPUT:
@@ -24,12 +29,20 @@ generation.lode1 <- function (
 #   coefficient matrix.
 # row_column_permutation: Make the sparsity structure less obvious
 #   by permuting rows and columns of the coefficient matrix.
+# constant: A list of two vectors of length "dimension"
+#   indicating lower and upper bounds of constant term.
+#   Each component can also be a scalar,
+#   which will be automatically expanded to a vector.
+#   The default NULL value disables the constant term.
+#   (Notice that NULL is not mathematically equivalent to "list(0,0)".)
 
 # OUTPUT:
 # time: Input argument "timepoint".
 # parameter$initial: Initial condition of the system.
 # parameter$linear: Linear term of the system.
 #   It will be identical to the first column of "curve".
+# parameter$constant: Constant term of the system.
+#   Value NULL indicates the system does not contain a constant term.
 # curve: Data matrix for value at given time points.
 #   Each row is a curve.
 #   Each column is for one time point.
@@ -60,6 +73,37 @@ if ( length(timepoint)!=length(temp) || !all(timepoint==temp) )
 }
 
 row_column_permutation <- as.logical(row_column_permutation)
+
+constant_exist <- !is.null(constant)
+if ( constant_exist )
+{
+  constant <- as.list(constant)
+  if ( length(constant)!=2 )
+  {
+    stop('Argument "constant" must be '
+      ,'a list of two vectors or scalars.')
+  }
+  constant[[1]] <- as.numeric(constant[[1]])
+  if ( length(constant[[1]])==1 )
+  {
+    constant[[1]] <- rep ( constant[[1]] , dimension )
+  }
+  if ( length(constant[[1]])!=dimension )
+  {
+    stop('Each item of argument "constant" must be a scalar or ' ,
+      'a vector of length "dimension".')
+  }
+  constant[[2]] <- as.numeric(constant[[2]])
+  if ( length(constant[[2]])==1 )
+  {
+    constant[[2]] <- rep ( constant[[2]] , dimension )
+  }
+  if ( length(constant[[2]])!=dimension )
+  {
+    stop('Each item of argument "constant" must be a scalar or ' ,
+      'a vector of length "dimension".')
+  }
+}
 #}}}
 
 # Generate eigenvalues#{{{
@@ -217,10 +261,29 @@ if ( row_column_permutation == TRUE )
 }
 #}}}
 
+# Constant#{{{
+
+ret$constant <- NULL
+
+ret$curve <- t(ret$curve)
+
+if ( constant_exist )
+{
+  ret$parameter$constant <-
+    runif ( dimension , constant[[1]] , constant[[2]] )
+  temp <- solve ( ret$parameter$linear , ret$parameter$constant )
+  lapply ( 1 : length(time_point) , function(index)
+  {
+    ret$curve[,index] <<- ret$curve[,index] - temp
+    return()
+  } )
+}
+
+#}}}
+
 # Return#{{{
 
 ret$time <- timepoint
-ret$curve <- t(ret$curve)
 ret$parameter$initial <- ret$curve[,1]
 
 return(ret)
