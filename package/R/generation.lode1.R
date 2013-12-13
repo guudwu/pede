@@ -90,7 +90,7 @@ if ( constant_exist )
   }
   if ( length(constant[[1]])!=dimension )
   {
-    stop('Each item of argument "constant" must be a scalar or ' ,
+    stop('Each element of argument "constant" must be a scalar or ' ,
       'a vector of length "dimension".')
   }
   constant[[2]] <- as.numeric(constant[[2]])
@@ -100,7 +100,7 @@ if ( constant_exist )
   }
   if ( length(constant[[2]])!=dimension )
   {
-    stop('Each item of argument "constant" must be a scalar or ' ,
+    stop('Each element of argument "constant" must be a scalar or ' ,
       'a vector of length "dimension".')
   }
 }
@@ -218,17 +218,19 @@ for ( item in orthogonal_transformation )
   item <- as.integer(item)
   if ( length(item)!=2 )
   {
-    stop('Each item of "orthogonal_transformation" must be length 2.')
+    stop('Each element of argument "orthogonal_transformation" '
+      ,'must be length 2.')
   }
   if ( item[1]>=item[2] )
   {
-    stop('In each item of "orthogonal_transformation", ' ,
+    stop('In each element of argument "orthogonal_transformation", ' ,
       'The second component must be larger than first.'
     )
   }
   if ( item[1]<1 || item[2]>dimension )
   {
-    stop('Out-of-bound index in items of "orthogonal_transformation".')
+    stop('Out-of-bound index in elements of '
+      ,'argument "orthogonal_transformation".')
   }
 
   require('pracma')
