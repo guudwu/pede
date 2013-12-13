@@ -1,6 +1,7 @@
 generation.lode1 <- function (
   dimension
   , timepoint
+  , orthogonal_transformation = list()
 )
 
 # INPUT:
@@ -13,6 +14,13 @@ generation.lode1 <- function (
 #   Hence if "dimension" is even, all eigen-values are complex,
 #   otherwise there exists one real eigen-value in the spectrum.
 # timepoint: Time points for observation data.
+# orthogonal_transformation: A list which applies transformation
+#   to coefficient matrix to adjust the sparsity and structure.
+#   Each component of the list is a 2-tuple (M,N)
+#   A random orthogonal matrix of dimension (N-M+1) is left multipled
+#   to Mth-Nth row of the coefficient matrix,
+#   and its transpose right multipled to Mth-Nth column of the
+#   coefficient matrix.
 
 # OUTPUT:
 # time: Input argument "timepoint".
@@ -150,6 +158,36 @@ if ( num_real_eigen == 1 )
 {
   ret$parameter$linear[dimension,dimension] <- tail(eigen_real,1)
   ret$curve[,dimension] <- exp ( tail(eigen_real,1) * timepoint )
+}
+#}}}
+
+# Orthogonal Transformation#{{{
+
+orthogonal_transformation <- as.list(orthogonal_transformation)
+for ( item in orthogonal_transformation )
+{
+  item <- as.integer(item)
+  if ( length(item)!=2 )
+  {
+    stop('Each item of "orthogonal_transformation" must be length 2.')
+  }
+  if ( item[1]>=item[2] )
+  {
+    stop('In each item of "orthogonal_transformation", ' ,
+      'The second component must be larger than first.'
+    )
+  }
+  if ( item[1]<1 || item[2]>dimension )
+  {
+    stop('Out-of-bound index in items of "orthogonal_transformation".')
+  }
+
+  require('pracma')
+  temp <- diag(dimension)
+  temp [ item[1]:item[2] , item[1]:item[2] ] <-
+    pracma::rortho ( item[2]-item[1]+1 )
+  ret$curve <- ret$curve %*% t(temp)
+  ret$parameter$linear <- temp %*% ret$parameter$linear %*% t(temp)
 }
 #}}}
 

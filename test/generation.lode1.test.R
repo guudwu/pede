@@ -9,6 +9,7 @@ truth <-
   generation.lode1 (
     dimension
     , time_point
+    , list(c(2,3),c(4,5))
   )
 
 # Check curve with internal "ode" function.
@@ -32,3 +33,4 @@ rss <- norm ( t(ode_res[,-1]) - truth$curve , 'F' )
 cat('rss:')
 cat(rss)
 cat('\n')
+print(truth)

@@ -7,4 +7,4 @@ Author: GuuD WU
 Maintainer: GuuD WU<guuuuud@gmail.com>
 Description: To be added.
 License: GPLv2.
-Depends: permute
+Depends: permute, pracma
